@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wellness Partners — Riley</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  /* ── Variables ────────────────────────────────────────────────── */
+  :root {
+    --teal:       #0d9488;
+    --teal-light: #14b8a6;
+    --teal-dark:  #0f766e;
+    --navy:       #0a1628;
+    --navy-mid:   #0f2240;
+    --glass-bg:   rgba(255,255,255,0.07);
+    --glass-bg2:  rgba(255,255,255,0.12);
+    --glass-border: rgba(255,255,255,0.18);
+    --text:       #e2f0ef;
+    --text-muted: #94bfbb;
+    --user-bg:    rgba(13,148,136,0.35);
+    --bot-bg:     rgba(255,255,255,0.09);
+    --radius:     18px;
+    --radius-sm:  12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Animated background orbs ───────────────────────────────── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .orb-1 {
+    width: 500px; height: 500px;
+    top: -120px; left: -100px;
+    background: radial-gradient(circle, rgba(13,148,136,0.28), transparent 70%);
+    animation-delay: 0s;
+  }
+  .orb-2 {
+    width: 400px; height: 400px;
+    bottom: -80px; right: -80px;
+    background: radial-gradient(circle, rgba(20,184,166,0.2), transparent 70%);
+    animation-delay: -7s;
+  }
+  .orb-3 {
+    width: 300px; height: 300px;
+    top: 40%; left: 55%;
+    background: radial-gradient(circle, rgba(15,118,110,0.18), transparent 70%);
+    animation-delay: -12s;
+  }
+  @keyframes drift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(30px, 20px) scale(1.08); }
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────── */
+  .shell {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  /* ── Header ───────────────────────────────────────────────────── */
+  header {
+    padding: 20px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 24px rgba(13,148,136,0.5);
+    flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .header-text p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    display: inline-block;
+    margin-right: 5px;
+    box-shadow: 0 0 6px var(--teal-light);
+    animation: pulse-dot 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+  }
+
+  /* ── Messages ────────────────────────────────────────────────── */
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+  }
+  #messages::-webkit-scrollbar { width: 4px; }
+  #messages::-webkit-scrollbar-thumb {
+    background: rgba(13,148,136,0.35);
+    border-radius: 4px;
+  }
+
+  .msg {
+    display: flex;
+    animation: msg-in 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .msg.user  { justify-content: flex-end; }
+  .msg.bot   { justify-content: flex-start; }
+
+  .bubble {
+    max-width: 74%;
+    padding: 11px 16px;
+    border-radius: var(--radius);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    position: relative;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .msg.user .bubble {
+    background: var(--user-bg);
+    border: 1px solid rgba(13,148,136,0.45);
+    border-radius: var(--radius) var(--radius) 4px var(--radius);
+    box-shadow: 0 4px 16px rgba(13,148,136,0.18);
+  }
+  .msg.bot .bubble {
+    background: var(--bot-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius) var(--radius) var(--radius) 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  /* ── Typing indicator ────────────────────────────────────────── */
+  .typing-bubble {
+    display: flex; align-items: center; gap: 5px;
+    padding: 13px 18px;
+  }
+  .typing-bubble span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30%          { transform: translateY(-6px); }
+  }
+
+  /* ── Input area ──────────────────────────────────────────────── */
+  .input-area {
+    flex-shrink: 0;
+    padding: 12px 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    background: var(--glass-bg2);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 6px 6px 6px 18px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transition: border-color 0.2s;
+  }
+  .input-row:focus-within {
+    border-color: rgba(13,148,136,0.6);
+    box-shadow: 0 8px 32px rgba(13,148,136,0.12);
+  }
+
+  #user-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    resize: none;
+    height: 38px;
+    line-height: 38px;
+    max-height: 120px;
+  }
+  #user-input::placeholder { color: var(--text-muted); }
+
+  #send-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--teal-light), var(--teal-dark));
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 12px rgba(13,148,136,0.4);
+  }
+  #send-btn:hover  { transform: scale(1.08); box-shadow: 0 6px 16px rgba(13,148,136,0.55); }
+  #send-btn:active { transform: scale(0.95); }
+  #send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── Phone handoff panel ─────────────────────────────────────── */
+  .handoff-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: panel-in 0.3s ease both;
+  }
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .handoff-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .handoff-row {
+    display: flex; gap: 8px; align-items: center;
+  }
+  #phone-input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #phone-input::placeholder { color: var(--text-muted); }
+  #phone-input:focus { border-color: rgba(13,148,136,0.6); }
+
+  #call-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(13,148,136,0.5);
+    background: rgba(13,148,136,0.18);
+    color: var(--teal-light);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+  #call-btn:hover  { background: rgba(13,148,136,0.32); transform: scale(1.03); }
+  #call-btn:active { transform: scale(0.97); }
+  #call-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .call-status {
+    font-size: 0.78rem;
+    margin-top: 6px;
+    min-height: 16px;
+    transition: color 0.3s;
+  }
+  .call-status.success { color: var(--teal-light); }
+  .call-status.error   { color: #f87171; }
+
+  /* ── Clear button ────────────────────────────────────────────── */
+  #clear-btn {
+    margin-left: auto;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  #clear-btn:hover { background: rgba(255,255,255,0.11); color: var(--text); }
+
+  /* ── Disclaimer ──────────────────────────────────────────────── */
+  .disclaimer {
+    text-align: center;
+    font-size: 0.68rem;
+    color: rgba(148,191,187,0.5);
+    padding-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background atmosphere -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="shell">
+
+  <!-- Header -->
+  <header>
+    <div class="avatar">🏥</div>
+    <div class="header-text">
+      <h1>Riley <span style="font-family:'DM Sans';font-size:0.8rem;font-weight:300;color:var(--text-muted)">· Wellness Partners</span></h1>
+      <p><span class="status-dot"></span>Available now · Scheduling assistant</p>
+    </div>
+    <button id="clear-btn" onclick="clearChat()" title="Start a new conversation">New chat</button>
+  </header>
+
+  <!-- Message feed -->
+  <div id="messages"></div>
+
+  <!-- Input area -->
+  <div class="input-area">
+
+    <!-- Phone handoff -->
+    <div class="handoff-panel">
+      <div class="handoff-label">
+        📞 Continue this conversation on a call
+      </div>
+      <div class="handoff-row">
+        <input id="phone-input" type="tel" placeholder="(248) 606-1203" autocomplete="tel">
+        <button id="call-btn" onclick="startHandoff()">Call me</button>
+      </div>
+      <div id="call-status" class="call-status"></div>
+    </div>
+
+    <!-- Text input -->
+    <div class="input-row">
+      <textarea id="user-input" placeholder="Message Riley…" rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendMessage()" title="Send">
+        ↑
+      </button>
+    </div>
+
+    <div class="disclaimer">Riley cannot provide medical advice · For emergencies call 911</div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let sessionId = localStorage.getItem('riley_session_id') || null;
+
+// ── DOM refs ───────────────────────────────────────────────────────────────
+const messagesEl  = document.getElementById('messages');
+const inputEl     = document.getElementById('user-input');
+const sendBtn     = document.getElementById('send-btn');
+const callBtn     = document.getElementById('call-btn');
+const phoneInput  = document.getElementById('phone-input');
+const callStatus  = document.getElementById('call-status');
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Restore prior messages if session exists
+  const saved = localStorage.getItem('riley_transcript');
+  if (saved && sessionId) {
+    JSON.parse(saved).forEach(m => appendBubble(m.role === 'user' ? 'user' : 'bot', m.content));
+  } else {
+    appendBubble('bot',
+      'Hi! I\'m Riley, your scheduling assistant at Wellness Partners. ' +
+      'I can help you book an appointment, check on a prescription refill, ' +
+      'or answer questions about our offices. How can I help you today?'
+    );
+  }
+  inputEl.focus();
+});
+
+// ── Message rendering ──────────────────────────────────────────────────────
+function appendBubble(role, text) {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `<div class="bubble">${escHtml(text)}</div>`;
+  messagesEl.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="bubble typing-bubble">
+    <span></span><span></span><span></span>
+  </div>`;
+  messagesEl.appendChild(div);
+  scrollToBottom();
+}
+
+function hideTyping() {
+  document.getElementById('typing-indicator')?.remove();
+}
+
+function scrollToBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/\n/g,'<br>');
+}
+
+// ── Clear chat ─────────────────────────────────────────────────────────────
+function clearChat() {
+  localStorage.removeItem('riley_session_id');
+  localStorage.removeItem('riley_transcript');
+  sessionId = null;
+  messagesEl.innerHTML = '';
+  setCallStatus('', '');
+  callBtn.disabled = false;
+  appendBubble('bot',
+    'Hi! I\'m Riley, your scheduling assistant at Wellness Partners. ' +
+    'I can help you book an appointment, check on a prescription refill, ' +
+    'or answer questions about our offices. How can I help you today?'
+  );
+  inputEl.focus();
+}
+
+// ── Send message ───────────────────────────────────────────────────────────
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  inputEl.value = '';
+  autoResize(inputEl);
+  setLoading(true);
+  appendBubble('user', text);
+  showTyping();
+
+  try {
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, session_id: sessionId })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Persist session
+    sessionId = data.session_id;
+    localStorage.setItem('riley_session_id', sessionId);
+    localStorage.setItem('riley_transcript', JSON.stringify(data.transcript));
+
+    hideTyping();
+    appendBubble('bot', data.reply);
+
+  } catch (err) {
+    hideTyping();
+    appendBubble('bot', 'Sorry, I had trouble connecting. Please try again.');
+    console.error(err);
+  } finally {
+    setLoading(false);
+    inputEl.focus();
+  }
+}
+
+// ── Phone handoff ──────────────────────────────────────────────────────────
+async function startHandoff() {
+  const phone = phoneInput.value.trim();
+  if (!phone) {
+    phoneInput.focus();
+    return;
+  }
+  if (!sessionId) {
+    setCallStatus('Start a chat first, then I can call you.', 'error');
+    return;
+  }
+
+  callBtn.disabled = true;
+  setCallStatus('Connecting call…', '');
+
+  try {
+    const res = await fetch('/call/handoff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone_number: phone, session_id: sessionId })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    setCallStatus(`✓ Calling ${data.called} now — Riley will pick up where we left off!`, 'success');
+    appendBubble('bot', `I'm calling you now at ${data.called}. I'll remember everything we discussed — see you on the call!`);
+
+  } catch (err) {
+    setCallStatus(`Couldn't place the call: ${err.message}`, 'error');
+    callBtn.disabled = false;
+  }
+}
+
+function setCallStatus(msg, type) {
+  callStatus.textContent = msg;
+  callStatus.className = `call-status ${type}`;
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function setLoading(on) {
+  sendBtn.disabled = on;
+  inputEl.disabled = on;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  el.style.lineHeight = el.scrollHeight <= 38 ? '38px' : '1.5';
+}
+</script>
+</body>
+</html>

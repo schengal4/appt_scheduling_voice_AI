@@ -1,0 +1,4 @@
+vapi_server_sdk
+fastapi[standard]
+openai
+
