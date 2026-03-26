@@ -55,7 +55,6 @@ async def vapi_webhook(request: Request):
             name = tc.get("name") or tc.get("function", {}).get("name")
             args = tc.get("arguments") or tc.get("function", {}).get("arguments", {})
             if isinstance(args, str):
-                import json
                 args = json.loads(args)
 
             tool_id = tc.get("id")
