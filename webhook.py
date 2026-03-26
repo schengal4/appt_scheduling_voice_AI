@@ -52,8 +52,12 @@ async def vapi_webhook(request: Request):
     if event == "tool-calls":
         results = []
         for tc in message.get("toolCallList", []):
-            name    = tc.get("name")
-            args    = tc.get("arguments", {})
+            name = tc.get("name") or tc.get("function", {}).get("name")
+            args = tc.get("arguments") or tc.get("function", {}).get("arguments", {})
+            if isinstance(args, str):
+                import json
+                args = json.loads(args)
+
             tool_id = tc.get("id")
 
             logger.info(f"[{call_id}] tool={name} args={args}")
